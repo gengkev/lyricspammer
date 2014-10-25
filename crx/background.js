@@ -47,17 +47,17 @@ function getAuthenticityToken(callback) {
 }
 
 // assumes user is logged in
-function askQuestion(content, usernames, callback) {
+function askQuestion(content, usernames, force_anonymous, callback) {
 	getAuthenticityToken(function(authenticity_token) {
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", "http://ask.fm/account/questions/quick_mass_create", true);
 		var fd = new FormData();
 		fd.append("authenticity_token", authenticity_token);
 		fd.append("question[question_text]", content);
-		fd.append("question[friends]", usernames);
+		fd.append("question[friends]", usernames.join("|"));
 		fd.append("captcha", "");
 		fd.append("captcha_key", "");
-		fd.append("force_anonymous", "");
+		fd.append("force_anonymous", (force_anonymous ? "force_anonymous" : ""));
 		xhr.onload = function() {
 			console.log(xhr);
 			callback();
@@ -84,7 +84,7 @@ function postRandomLyrics(usernames) {
 			
 			var signature = "\n (MLSS)";
 			
-			askQuestion(lyrics + signature, usernames, function() {
+			askQuestion(lyrics + signature, usernames, false,  function() {
 				console.log("yay?");
 			});
 		});
